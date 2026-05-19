@@ -213,35 +213,51 @@
     text-align: center;
   }
 
-  #installBanner {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(10,10,10,0.96);
-    border-top: 2.5px solid #f7c948;
-    padding: 16px 18px 32px;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    z-index: 100;
-    font-family: 'Press Start 2P', monospace;
+  .corner-btn {
+    background: rgba(0,0,0,0.55);
+    border: 2px solid rgba(255,255,255,0.28);
     color: #fff;
-    font-size: 9px;
-    line-height: 1.8;
-    transform: translateY(100%);
-    transition: transform 0.45s cubic-bezier(.22,1,.36,1);
-  }
-  #installBanner.show { transform: translateY(0); }
-  #installBanner .bird-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
-  #installBanner .install-text { flex: 1; }
-  #installBanner .install-title { color: #f7c948; display: block; margin-bottom: 8px; font-size: 10px; }
-  #installBanner .steps { color: #bbb; font-size: 8px; line-height: 2.2; }
-  #installBanner .steps b { color: #f7c948; }
-  #closeBanner {
-    background: none; border: 1.5px solid #444; color: #888;
-    font-family: 'Press Start 2P', monospace; font-size: 8px;
-    padding: 6px 8px; cursor: pointer; border-radius: 6px; flex-shrink: 0;
-    margin-top: 2px;
+    font-size: 22px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: auto;
+    transition: background 0.15s, border-color 0.15s;
+    position: absolute;
+  }
+  .corner-btn:active { transform: scale(0.9); }
+  .corner-panel {
+    position: absolute;
+    background: rgba(10,10,10,0.95);
+    border: 2px solid #f7c948;
+    border-radius: 14px;
+    padding: 14px 16px;
+    pointer-events: auto;
+    z-index: 25;
+  }
+  .bird-opt {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: #bbb;
+    padding: 8px 4px;
+    cursor: pointer;
+    line-height: 2;
+    transition: all 0.15s;
+    text-align: center;
+    pointer-events: auto;
+  }
+  .bird-opt:active { transform: scale(0.95); }
+  .bird-opt.selected {
+    border-color: #f7c948;
+    background: rgba(247,201,72,0.15);
+    color: #f7c948;
   }
 
   /* Allow interaction for overlay cards and their controls (overlay itself is non-interactive) */
@@ -286,20 +302,30 @@
       </div>
       <button class="start-btn" style="margin-top:8px" onclick="goToMenu()">☰ MAIN MENU</button>
     </div>
-  </div>
-</div>
-
-<div id="installBanner">
-  <div class="bird-icon">🐦</div>
-  <div class="install-text">
-    <span class="install-title">ADD TO HOME SCREEN</span>
-    <div class="steps">
-      1. Tap the <b>Share</b> button (box with arrow)<br>
-      2. Scroll down &amp; tap <b>Add to Home Screen</b><br>
-      3. Tap <b>Add</b> — done! 🎉
+    <!-- iOS install button — bottom-left, only shown on iOS Safari -->
+    <button id="installBtn" class="corner-btn" style="bottom:28px;left:20px;display:none" onclick="toggleInstallPanel()">📲</button>
+    <!-- Bird selector button — bottom-right -->
+    <button id="birdBtn" class="corner-btn" style="bottom:28px;right:20px;display:none" onclick="toggleBirdPanel()">🦢</button>
+    <!-- Install instructions popup -->
+    <div id="installPanel" class="corner-panel" style="bottom:92px;left:12px;display:none">
+      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#f7c948;margin-bottom:10px">ADD TO HOME</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:#bbb;line-height:2.4">
+        1. Tap <span style="color:#f7c948">Share ↑</span><br>
+        2. Tap <span style="color:#f7c948">Add to Home Screen</span><br>
+        3. Tap <span style="color:#f7c948">Add</span> — done! 🎉
+      </div>
+    </div>
+    <!-- Bird selector popup -->
+    <div id="birdPanel" class="corner-panel" style="bottom:92px;right:12px;display:none">
+      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#f7c948;margin-bottom:10px;text-align:center">CHOOSE BIRD</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:180px">
+        <button class="bird-opt selected" id="opt-pelican" onclick="selectBird('pelican')">🦢<br>PELICAN</button>
+        <button class="bird-opt" id="opt-penguin" onclick="selectBird('penguin')">🐧<br>PENGUIN</button>
+        <button class="bird-opt" id="opt-pigeon" onclick="selectBird('pigeon')">🕊️<br>PIGEON</button>
+        <button class="bird-opt" id="opt-chick" onclick="selectBird('chick')">🐥<br>CHICK</button>
+      </div>
     </div>
   </div>
-  <button id="closeBanner">✕</button>
 </div>
 
 <script>
@@ -311,6 +337,10 @@ const gameOverEl = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
 const bestEasyScoreEl = document.getElementById('bestEasyScore');
 const bestHardScoreEl = document.getElementById('bestHardScore');
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone === true;
+let selectedBird = 'pelican';
+const birdEmoji = { pelican: '🦢', penguin: '🐧', pigeon: '🕊️', chick: '🐥' };
 
 // ---- Sizing ----
 let W, H, scale;
@@ -363,6 +393,7 @@ const HOLD_MAX_MS = 500;        // full hold duration cap
 const HOLD_BOOST = 2.8;         // max extra multiplier on top of baseline
 
 function beginGame() {
+  hideMenuUI();
   startScreen.style.display = 'none';
   scoreEl.style.display = 'block';
   state = 'play';
@@ -383,6 +414,38 @@ function goToMenu() {
   scoreEl.style.display = 'none';
   startScreen.style.display = 'flex';
   state = 'idle';
+  showMenuUI();
+}
+
+function showMenuUI() {
+  document.getElementById('birdBtn').style.display = 'flex';
+  if (isIOS && !isStandalone) document.getElementById('installBtn').style.display = 'flex';
+}
+
+function hideMenuUI() {
+  ['birdBtn','installBtn','birdPanel','installPanel'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
+function toggleBirdPanel() {
+  const p = document.getElementById('birdPanel');
+  document.getElementById('installPanel').style.display = 'none';
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleInstallPanel() {
+  const p = document.getElementById('installPanel');
+  document.getElementById('birdPanel').style.display = 'none';
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+function selectBird(d) {
+  selectedBird = d;
+  document.getElementById('birdBtn').textContent = birdEmoji[d];
+  document.querySelectorAll('.bird-opt').forEach(b => b.classList.remove('selected'));
+  document.getElementById('opt-' + d).classList.add('selected');
+  document.getElementById('birdPanel').style.display = 'none';
 }
 
 function startPress() {
@@ -540,115 +603,159 @@ function drawGround() {
 function drawBird() {
   const bx = bird.x, by = bird.y;
   const r = BIRD_R * scale;
-
+  const pressing = pressStart !== null;
   ctx.save();
   ctx.translate(bx, by);
   ctx.rotate(Math.max(-0.5, Math.min(1.4, bird.angle)));
+  if (selectedBird === 'pelican') drawPelican(r, pressing);
+  else if (selectedBird === 'penguin') drawPenguin(r, pressing);
+  else if (selectedBird === 'pigeon') drawPigeon(r, pressing);
+  else drawChick(r, pressing);
+  ctx.restore();
+}
 
-  // ── PELICAN ──────────────────────────────────────────
+function drawPelican(r, pressing) {
   const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.55 : 0;
-  const pressing = pressStart !== null;
-
-  // tail feathers
   ctx.fillStyle = '#b0bec5';
   ctx.beginPath();
-  ctx.moveTo(-r * 1.0, r * 0.1);
-  ctx.lineTo(-r * 1.6, -r * 0.3);
-  ctx.lineTo(-r * 1.5, r * 0.15);
-  ctx.lineTo(-r * 1.7, r * 0.35);
-  ctx.lineTo(-r * 1.1, r * 0.3);
-  ctx.closePath();
-  ctx.fill();
-
-  // wings (flap up when pressing / holding)
+  ctx.moveTo(-r*1.0, r*0.1); ctx.lineTo(-r*1.6, -r*0.3); ctx.lineTo(-r*1.5, r*0.15);
+  ctx.lineTo(-r*1.7, r*0.35); ctx.lineTo(-r*1.1, r*0.3); ctx.closePath(); ctx.fill();
   const wAngle = pressing ? -0.55 : wingOff * 0.08;
-  ctx.save();
-  ctx.rotate(wAngle);
-  // left wing (top)
+  ctx.save(); ctx.rotate(wAngle);
   ctx.fillStyle = '#e0e0e0';
-  ctx.beginPath();
-  ctx.ellipse(-r * 0.15, -r * 0.05 + wingOff, r * 1.05, r * 0.32, -0.25, 0, Math.PI * 2);
-  ctx.fill();
-  // left wing dark tip
+  ctx.beginPath(); ctx.ellipse(-r*0.15, -r*0.05+wingOff, r*1.05, r*0.32, -0.25, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#78909c';
-  ctx.beginPath();
-  ctx.ellipse(-r * 0.9, -r * 0.08 + wingOff, r * 0.35, r * 0.18, -0.25, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-r*0.9, -r*0.08+wingOff, r*0.35, r*0.18, -0.25, 0, Math.PI*2); ctx.fill();
   ctx.restore();
-
-  // body — white pelican
   ctx.fillStyle = '#f5f5f5';
-  ctx.beginPath();
-  ctx.ellipse(0, 0, r * 1.15, r * 0.88, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // belly shading
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.15, r*0.88, 0, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#fffde7';
-  ctx.beginPath();
-  ctx.ellipse(r * 0.05, r * 0.25, r * 0.65, r * 0.5, 0.1, 0, Math.PI * 2);
-  ctx.fill();
-
-  // head
+  ctx.beginPath(); ctx.ellipse(r*0.05, r*0.25, r*0.65, r*0.5, 0.1, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#f5f5f5';
-  ctx.beginPath();
-  ctx.ellipse(r * 0.75, -r * 0.55, r * 0.45, r * 0.42, 0.15, 0, Math.PI * 2);
-  ctx.fill();
-
-  // eye ring (yellow)
-  ctx.fillStyle = '#fdd835';
-  ctx.beginPath();
-  ctx.arc(r * 0.92, -r * 0.65, r * 0.22, 0, Math.PI * 2);
-  ctx.fill();
-  // eye white
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(r * 0.92, -r * 0.65, r * 0.15, 0, Math.PI * 2);
-  ctx.fill();
-  // pupil
-  ctx.fillStyle = '#1a1a1a';
-  ctx.beginPath();
-  ctx.arc(r * 0.95, -r * 0.65, r * 0.08, 0, Math.PI * 2);
-  ctx.fill();
-  // eye shine
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(r * 0.97, -r * 0.68, r * 0.035, 0, Math.PI * 2);
-  ctx.fill();
-
-  // upper mandible (long pelican bill)
+  ctx.beginPath(); ctx.ellipse(r*0.75, -r*0.55, r*0.45, r*0.42, 0.15, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fdd835'; ctx.beginPath(); ctx.arc(r*0.92, -r*0.65, r*0.22, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.92, -r*0.65, r*0.15, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(r*0.95, -r*0.65, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.97, -r*0.68, r*0.035, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#f9a825';
-  ctx.beginPath();
-  ctx.moveTo(r * 0.9, -r * 0.78);
-  ctx.quadraticCurveTo(r * 1.85, -r * 0.72, r * 2.1, -r * 0.55);
-  ctx.quadraticCurveTo(r * 1.85, -r * 0.48, r * 0.9, -r * 0.5);
-  ctx.closePath();
-  ctx.fill();
-
-  // bill ridge line
-  ctx.strokeStyle = '#e65100';
-  ctx.lineWidth = r * 0.06;
-  ctx.beginPath();
-  ctx.moveTo(r * 0.9, -r * 0.64);
-  ctx.quadraticCurveTo(r * 1.6, -r * 0.6, r * 2.1, -r * 0.55);
-  ctx.stroke();
-
-  // pouch (lower mandible / throat sac)
+  ctx.beginPath(); ctx.moveTo(r*0.9, -r*0.78);
+  ctx.quadraticCurveTo(r*1.85, -r*0.72, r*2.1, -r*0.55);
+  ctx.quadraticCurveTo(r*1.85, -r*0.48, r*0.9, -r*0.5); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#e65100'; ctx.lineWidth = r*0.06;
+  ctx.beginPath(); ctx.moveTo(r*0.9, -r*0.64); ctx.quadraticCurveTo(r*1.6, -r*0.6, r*2.1, -r*0.55); ctx.stroke();
   ctx.fillStyle = '#ff8f00';
-  ctx.beginPath();
-  ctx.moveTo(r * 0.9, -r * 0.5);
-  ctx.quadraticCurveTo(r * 1.5, -r * 0.35, r * 2.0, -r * 0.42);
-  ctx.quadraticCurveTo(r * 1.8, -r * 0.18, r * 1.1, -r * 0.05);
-  ctx.quadraticCurveTo(r * 0.95, -r * 0.2, r * 0.9, -r * 0.5);
-  ctx.closePath();
-  ctx.fill();
-
-  // pouch highlight
+  ctx.beginPath(); ctx.moveTo(r*0.9, -r*0.5);
+  ctx.quadraticCurveTo(r*1.5, -r*0.35, r*2.0, -r*0.42);
+  ctx.quadraticCurveTo(r*1.8, -r*0.18, r*1.1, -r*0.05);
+  ctx.quadraticCurveTo(r*0.95, -r*0.2, r*0.9, -r*0.5); ctx.closePath(); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.22)';
-  ctx.beginPath();
-  ctx.ellipse(r * 1.35, -r * 0.32, r * 0.3, r * 0.1, -0.2, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*1.35, -r*0.32, r*0.3, r*0.1, -0.2, 0, Math.PI*2); ctx.fill();
+}
 
+function drawPenguin(r, pressing) {
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.45 : 0;
+  // tail
+  ctx.fillStyle = '#263238';
+  ctx.beginPath(); ctx.moveTo(-r*0.9, r*0.1); ctx.lineTo(-r*1.5, -r*0.05);
+  ctx.lineTo(-r*1.3, r*0.25); ctx.closePath(); ctx.fill();
+  // flippers
+  ctx.save(); ctx.rotate(pressing ? -0.45 : wingOff * 0.06);
+  ctx.fillStyle = '#263238';
+  ctx.beginPath(); ctx.ellipse(-r*0.1, r*0.05+wingOff, r*1.0, r*0.26, -0.2, 0, Math.PI*2); ctx.fill();
   ctx.restore();
+  // body black
+  ctx.fillStyle = '#263238';
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.1, r*0.95, 0, 0, Math.PI*2); ctx.fill();
+  // belly white
+  ctx.fillStyle = '#f5f5f5';
+  ctx.beginPath(); ctx.ellipse(r*0.05, r*0.08, r*0.65, r*0.72, 0.05, 0, Math.PI*2); ctx.fill();
+  // head black
+  ctx.fillStyle = '#263238';
+  ctx.beginPath(); ctx.arc(r*0.68, -r*0.6, r*0.43, 0, Math.PI*2); ctx.fill();
+  // eye
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.84, -r*0.68, r*0.14, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#111';    ctx.beginPath(); ctx.arc(r*0.87, -r*0.68, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.90, -r*0.71, r*0.03, 0, Math.PI*2); ctx.fill();
+  // beak
+  ctx.fillStyle = '#f9a825';
+  ctx.beginPath(); ctx.moveTo(r*0.76, -r*0.82); ctx.lineTo(r*1.28, -r*0.68); ctx.lineTo(r*0.76, -r*0.52); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#e65100'; ctx.lineWidth = r*0.05;
+  ctx.beginPath(); ctx.moveTo(r*0.76, -r*0.67); ctx.lineTo(r*1.26, -r*0.68); ctx.stroke();
+}
+
+function drawPigeon(r, pressing) {
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.5 : 0;
+  // tail
+  ctx.fillStyle = '#9e9e9e';
+  ctx.beginPath(); ctx.moveTo(-r*0.9, r*0.1); ctx.lineTo(-r*1.55, -r*0.15);
+  ctx.lineTo(-r*1.45, r*0.2); ctx.lineTo(-r*1.65, r*0.38); ctx.lineTo(-r*1.05, r*0.32); ctx.closePath(); ctx.fill();
+  // wings
+  ctx.save(); ctx.rotate(pressing ? -0.5 : wingOff * 0.07);
+  ctx.fillStyle = '#bdbdbd';
+  ctx.beginPath(); ctx.ellipse(-r*0.1, -r*0.03+wingOff, r*1.02, r*0.30, -0.22, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#757575';
+  ctx.beginPath(); ctx.ellipse(-r*0.88, -r*0.06+wingOff, r*0.33, r*0.16, -0.22, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  // body
+  ctx.fillStyle = '#9e9e9e';
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.12, r*0.88, 0, 0, Math.PI*2); ctx.fill();
+  // iridescent neck
+  ctx.fillStyle = '#80cbc4';
+  ctx.beginPath(); ctx.ellipse(r*0.32, -r*0.28, r*0.42, r*0.34, 0.25, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(186,104,200,0.45)';
+  ctx.beginPath(); ctx.ellipse(r*0.32, -r*0.28, r*0.42, r*0.34, 0.25, 0, Math.PI*2); ctx.fill();
+  // light belly
+  ctx.fillStyle = '#e0e0e0';
+  ctx.beginPath(); ctx.ellipse(r*0.05, r*0.22, r*0.55, r*0.45, 0.1, 0, Math.PI*2); ctx.fill();
+  // head
+  ctx.fillStyle = '#9e9e9e';
+  ctx.beginPath(); ctx.ellipse(r*0.72, -r*0.57, r*0.42, r*0.40, 0.1, 0, Math.PI*2); ctx.fill();
+  // eye orange
+  ctx.fillStyle = '#ff8f00'; ctx.beginPath(); ctx.arc(r*0.88, -r*0.67, r*0.17, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(r*0.90, -r*0.67, r*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.93, -r*0.70, r*0.035, 0, Math.PI*2); ctx.fill();
+  // beak
+  ctx.fillStyle = '#bdbdbd';
+  ctx.beginPath(); ctx.moveTo(r*0.84, -r*0.80);
+  ctx.quadraticCurveTo(r*1.35, -r*0.72, r*1.44, -r*0.63);
+  ctx.quadraticCurveTo(r*1.35, -r*0.55, r*0.84, -r*0.52); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#f48fb1';
+  ctx.beginPath(); ctx.ellipse(r*0.92, -r*0.66, r*0.11, r*0.07, 0, 0, Math.PI*2); ctx.fill();
+}
+
+function drawChick(r, pressing) {
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.38 : 0;
+  // tail fluff
+  ctx.fillStyle = '#fbc02d';
+  ctx.beginPath(); ctx.arc(-r*1.05, r*0.05, r*0.32, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-r*0.95, -r*0.18, r*0.25, 0, Math.PI*2); ctx.fill();
+  // wing stubs
+  ctx.save(); ctx.rotate(pressing ? -0.4 : wingOff * 0.06);
+  ctx.fillStyle = '#fbc02d';
+  ctx.beginPath(); ctx.ellipse(-r*0.05, r*0.12+wingOff, r*0.82, r*0.26, -0.28, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  // body
+  ctx.fillStyle = '#fdd835';
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.05, r*0.95, 0, 0, Math.PI*2); ctx.fill();
+  // belly highlight
+  ctx.fillStyle = '#fff9c4';
+  ctx.beginPath(); ctx.ellipse(r*0.08, r*0.22, r*0.58, r*0.52, 0.1, 0, Math.PI*2); ctx.fill();
+  // head
+  ctx.fillStyle = '#fdd835';
+  ctx.beginPath(); ctx.arc(r*0.65, -r*0.58, r*0.44, 0, Math.PI*2); ctx.fill();
+  // hair tufts
+  ctx.fillStyle = '#fbc02d';
+  ctx.beginPath(); ctx.arc(r*0.57, -r*1.00, r*0.13, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(r*0.72, -r*1.03, r*0.11, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(r*0.45, -r*0.97, r*0.10, 0, Math.PI*2); ctx.fill();
+  // eye
+  ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(r*0.87, -r*0.64, r*0.12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(r*0.91, -r*0.67, r*0.045, 0, Math.PI*2); ctx.fill();
+  // beak
+  ctx.fillStyle = '#ff8f00';
+  ctx.beginPath(); ctx.moveTo(r*0.84, -r*0.76); ctx.lineTo(r*1.28, -r*0.65); ctx.lineTo(r*0.84, -r*0.56); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#e65100'; ctx.lineWidth = r*0.05;
+  ctx.beginPath(); ctx.moveTo(r*0.84, -r*0.66); ctx.lineTo(r*1.27, -r*0.65); ctx.stroke();
 }
 
 // ---- Collision ----
@@ -777,18 +884,6 @@ document.addEventListener('keyup', e => {
 });
 
 
-// ---- Install Banner ----
-const installBanner = document.getElementById('installBanner');
-const closeBanner = document.getElementById('closeBanner');
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone = window.navigator.standalone === true;
-if (isIOS && !isStandalone) {
-  setTimeout(() => installBanner.classList.add('show'), 2000);
-}
-closeBanner.addEventListener('click', () => {
-  installBanner.classList.remove('show');
-});
-
 // Generate and set apple-touch-icon from canvas
 window.addEventListener('load', () => {
   const ic = document.createElement('canvas');
@@ -820,6 +915,7 @@ window.addEventListener('load', () => {
 });
 
 // ---- Init ----
+showMenuUI();
 loop();
 </script>
 </body>
