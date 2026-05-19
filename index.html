@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Flapy">
+<meta name="apple-mobile-web-app-title" content="Flappy">
 <meta name="theme-color" content="#3ab8f0">
 <link id="apple-touch-icon" rel="apple-touch-icon" href="">
-<title>Flapy</title>
+<title>Flappy</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -258,7 +258,7 @@
 
   <div id="overlay">
     <div id="startScreen" class="card">
-      <div class="title">FLAPY</div>
+      <div class="title">FLAPPY</div>
       <div class="subtitle">Dodge the pipes.<br>Don't hit the ground.</div>
       <div class="diff-label">DIFFICULTY</div>
       <div class="diff-btns">
@@ -272,7 +272,8 @@
       <div id="medal" class="medal"></div>
       <div class="score-box">
         <div class="score-row"><span>SCORE</span><span id="finalScore">0</span></div>
-        <div class="score-row"><span>BEST</span><span id="bestScore">0</span></div>
+        <div class="score-row"><span>🟢 BEST</span><span id="bestEasyScore">0</span></div>
+        <div class="score-row"><span>🔴 BEST</span><span id="bestHardScore">0</span></div>
         <div class="score-row" style="margin-top:4px"><span>MODE</span><span id="diffBadge" style="color:#a5d6a7">EASY</span></div>
       </div>
       <div class="diff-btns" style="margin-top:4px">
@@ -304,7 +305,8 @@ const scoreEl = document.getElementById('score');
 const startScreen = document.getElementById('startScreen');
 const gameOverEl = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
-const bestScoreEl = document.getElementById('bestScore');
+const bestEasyScoreEl = document.getElementById('bestEasyScore');
+const bestHardScoreEl = document.getElementById('bestHardScore');
 const medalEl = document.getElementById('medal');
 
 // ---- Sizing ----
@@ -327,7 +329,8 @@ window.addEventListener('resize', () => { resize(); if (state !== 'play') draw()
 // ---- State ----
 let state = 'idle'; // idle | play | dead
 let score = 0;
-let best = parseInt(localStorage.getItem('flappy_best') || '0');
+let bestEasy = parseInt(localStorage.getItem('flappy_best_easy') || '0');
+let bestHard = parseInt(localStorage.getItem('flappy_best_hard') || '0');
 let raf;
 
 // ---- Bird ----
@@ -411,12 +414,14 @@ function setDiff(d) {
   GAP = d === 'easy' ? GAP_EASY : GAP_HARD;
   document.getElementById('btnEasy').className = 'diff-btn' + (d === 'easy' ? ' selected-easy' : '');
   document.getElementById('btnHard').className = 'diff-btn' + (d === 'hard' ? ' selected-hard' : '');
+  document.getElementById('goEasy').className = 'diff-btn' + (d === 'easy' ? ' selected-easy' : '');
+  document.getElementById('goHard').className = 'diff-btn' + (d === 'hard' ? ' selected-hard' : '');
 }
 const PIPE_SPEED = 1.6 * (W / 375);
 let pipes = [];
 let pipeTimer = 0;
 const PIPE_INTERVAL = 90;
-const MAX_PIPE_DELTA = H * 0.18; // max vertical shift between consecutive pipes
+const MAX_PIPE_DELTA = H * 0.25; // max vertical shift between consecutive pipes
 let lastPipeTopH = null;
 
 function addPipe() {
@@ -523,7 +528,7 @@ function drawGround() {
   // tile marks
   ctx.fillStyle = '#b8952a';
   const tileW = 36 * scale;
-  for (let tx = (groundX % tileW) - tileW; tx < W; tx += tileW) {
+  for (let tx = -(groundX % tileW); tx < W; tx += tileW) {
     ctx.fillRect(tx, gY + 18 * scale, 2, GROUND_H - 18 * scale);
   }
 }
@@ -695,9 +700,14 @@ function update(delta = 1) {
   // collision
   if (checkCollision()) {
     state = 'dead';
-    if (score > best) { best = score; localStorage.setItem('flappy_best', best); }
+    if (difficulty === 'easy') {
+      if (score > bestEasy) { bestEasy = score; localStorage.setItem('flappy_best_easy', bestEasy); }
+    } else {
+      if (score > bestHard) { bestHard = score; localStorage.setItem('flappy_best_hard', bestHard); }
+    }
     finalScoreEl.textContent = score;
-    bestScoreEl.textContent = best;
+    bestEasyScoreEl.textContent = bestEasy;
+    bestHardScoreEl.textContent = bestHard;
     medalEl.textContent = score >= 30 ? '🥇' : score >= 20 ? '🥈' : score >= 10 ? '🥉' : score >= 5 ? '🏅' : '';
     const badge = document.getElementById('diffBadge');
     badge.textContent = difficulty.toUpperCase();
