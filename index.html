@@ -421,6 +421,7 @@ function setDiff(d) {
   document.getElementById('btnHard').className = 'diff-btn' + (d === 'hard' ? ' selected-hard' : '');
 }
 const PIPE_SPEED = 1.6 * (W / 375);
+const PIPE_SPEED_HARD = PIPE_SPEED * 1.02;
 let pipes = [];
 let pipeTimer = 0;
 const PIPE_INTERVAL = 90;
@@ -678,8 +679,10 @@ function update(delta = 1) {
   bird.angle += (bird.vy * 0.045 - bird.angle) * 0.18 * delta;
   bird.frameTimer += delta;
 
+  const spd = difficulty === 'hard' ? PIPE_SPEED_HARD : PIPE_SPEED;
+
   // ground scroll
-  groundX = (groundX + GROUND_SPEED * delta) % (36 * scale);
+  groundX = (groundX + spd * delta) % (36 * scale);
 
   // clouds
   for (const c of clouds) {
@@ -691,7 +694,7 @@ function update(delta = 1) {
   pipeTimer += delta;
   if (pipeTimer >= PIPE_INTERVAL) { addPipe(); pipeTimer = 0; }
   for (const p of pipes) {
-    p.x -= PIPE_SPEED * delta;
+    p.x -= spd * delta;
     if (!p.passed && p.x + PIPE_W < bird.x) {
       p.passed = true;
       score++;
