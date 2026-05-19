@@ -303,9 +303,9 @@
       <button class="start-btn" style="margin-top:8px" onclick="goToMenu()">☰ MAIN MENU</button>
     </div>
     <!-- iOS install button — bottom-left, only shown on iOS Safari -->
-    <button id="installBtn" class="corner-btn" style="bottom:28px;left:20px;display:none" onclick="toggleInstallPanel()">📲</button>
+    <button id="installBtn" class="corner-btn" style="bottom:28px;left:20px;display:none" onclick="toggleInstallPanel()"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="2" width="4" height="15" rx="2" fill="#f7c948"/><path d="M7 13.5 L16 23 L25 13.5" stroke="#f7c948" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 26 L5 29 Q5 30.5 6.5 30.5 L25.5 30.5 Q27 30.5 27 29 L27 26" stroke="#f7c948" stroke-width="3" stroke-linecap="round" fill="none"/></svg></button>
     <!-- Bird selector button — bottom-right -->
-    <button id="birdBtn" class="corner-btn" style="bottom:28px;right:20px;display:none" onclick="toggleBirdPanel()">🦢</button>
+    <button id="birdBtn" class="corner-btn" style="bottom:28px;right:20px;display:none;padding:0;overflow:hidden" onclick="toggleBirdPanel()"><canvas id="birdPreviewCanvas" width="52" height="52" style="display:block;border-radius:50%"></canvas></button>
     <!-- Install instructions popup -->
     <div id="installPanel" class="corner-panel" style="bottom:92px;left:12px;display:none">
       <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#f7c948;margin-bottom:10px">ADD TO HOME</div>
@@ -340,7 +340,6 @@ const bestHardScoreEl = document.getElementById('bestHardScore');
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isStandalone = window.navigator.standalone === true;
 let selectedBird = 'pelican';
-const birdEmoji = { pelican: '🦢', penguin: '🐧', pigeon: '🕊️', chick: '🐥' };
 
 // ---- Sizing ----
 let W, H, scale;
@@ -420,6 +419,7 @@ function goToMenu() {
 function showMenuUI() {
   document.getElementById('birdBtn').style.display = 'flex';
   if (isIOS && !isStandalone) document.getElementById('installBtn').style.display = 'flex';
+  renderBirdPreview();
 }
 
 function hideMenuUI() {
@@ -442,10 +442,65 @@ function toggleInstallPanel() {
 
 function selectBird(d) {
   selectedBird = d;
-  document.getElementById('birdBtn').textContent = birdEmoji[d];
   document.querySelectorAll('.bird-opt').forEach(b => b.classList.remove('selected'));
   document.getElementById('opt-' + d).classList.add('selected');
   document.getElementById('birdPanel').style.display = 'none';
+  renderBirdPreview();
+}
+
+function renderBirdPreview() {
+  const pc = document.getElementById('birdPreviewCanvas');
+  if (!pc) return;
+  const pcx = pc.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  pc.width = 52 * dpr; pc.height = 52 * dpr;
+  pc.style.width = '52px'; pc.style.height = '52px';
+  pcx.scale(dpr, dpr);
+  pcx.clearRect(0, 0, 52, 52);
+  const cx = 22, cy = 28, r = 11;
+  pcx.save();
+  pcx.translate(cx, cy);
+  const b = selectedBird;
+  if (b === 'pelican') {
+    pcx.fillStyle='#e0e0e0'; pcx.beginPath(); pcx.ellipse(-r*.12,-r*.02,r*.98,r*.28,-0.25,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#f5f5f5'; pcx.beginPath(); pcx.ellipse(0,0,r*1.1,r*.85,0,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fffde7'; pcx.beginPath(); pcx.ellipse(r*.05,r*.22,r*.6,r*.48,.1,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#f5f5f5'; pcx.beginPath(); pcx.ellipse(r*.72,-r*.52,r*.42,r*.40,.15,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fdd835'; pcx.beginPath(); pcx.arc(r*.88,-r*.62,r*.20,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#111';    pcx.beginPath(); pcx.arc(r*.90,-r*.62,r*.10,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#f9a825'; pcx.beginPath(); pcx.moveTo(r*.88,-r*.75); pcx.quadraticCurveTo(r*1.75,-r*.68,r*2.0,-r*.52); pcx.quadraticCurveTo(r*1.75,-r*.46,r*.88,-r*.48); pcx.closePath(); pcx.fill();
+    pcx.fillStyle='#ff8f00'; pcx.beginPath(); pcx.moveTo(r*.88,-r*.48); pcx.quadraticCurveTo(r*1.5,-r*.32,r*1.9,-r*.40); pcx.quadraticCurveTo(r*1.7,-r*.16,r*1.05,-r*.04); pcx.quadraticCurveTo(r*.92,-r*.18,r*.88,-r*.48); pcx.closePath(); pcx.fill();
+  } else if (b === 'penguin') {
+    pcx.fillStyle='#1c2b30'; pcx.beginPath(); pcx.ellipse(-r*.1,r*.05,r*.95,r*.25,-0.2,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#1c2b30'; pcx.beginPath(); pcx.ellipse(0,0,r*1.05,r*.92,0,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#f0f0f0';
+    pcx.beginPath(); pcx.moveTo(r*.45,-r*.55); pcx.bezierCurveTo(r*.95,-r*.38,r*.95,r*.32,r*.55,r*.78); pcx.bezierCurveTo(r*.28,r*.90,-r*.22,r*.88,-r*.42,r*.70); pcx.bezierCurveTo(-r*.60,r*.42,-r*.28,-r*.42,r*.45,-r*.55); pcx.fill();
+    pcx.fillStyle='#1c2b30'; pcx.beginPath(); pcx.arc(r*.65,-r*.62,r*.42,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fff';    pcx.beginPath(); pcx.arc(r*.82,-r*.70,r*.13,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#111';    pcx.beginPath(); pcx.arc(r*.85,-r*.70,r*.07,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#f9a825'; pcx.beginPath(); pcx.moveTo(r*.70,-r*.88); pcx.lineTo(r*1.28,-r*.72); pcx.quadraticCurveTo(r*1.25,-r*.58,r*1.1,-r*.56); pcx.lineTo(r*.70,-r*.62); pcx.closePath(); pcx.fill();
+  } else if (b === 'pigeon') {
+    pcx.fillStyle='#90a4ae'; pcx.beginPath(); pcx.ellipse(-r*.1,-r*.02,r*.98,r*.28,-0.22,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#9e9e9e'; pcx.beginPath(); pcx.ellipse(0,0,r*1.12,r*.85,0,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#26c6da'; pcx.beginPath(); pcx.ellipse(r*.40,-r*.36,r*.38,r*.28,.25,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='rgba(170,0,255,0.38)'; pcx.beginPath(); pcx.ellipse(r*.40,-r*.36,r*.38,r*.28,.25,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#e8e0d8'; pcx.beginPath(); pcx.ellipse(r*.06,r*.22,r*.55,r*.44,.08,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#78909c'; pcx.beginPath(); pcx.arc(r*.70,-r*.58,r*.40,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#ff8f00'; pcx.beginPath(); pcx.arc(r*.86,-r*.66,r*.16,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#111';    pcx.beginPath(); pcx.arc(r*.88,-r*.66,r*.08,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#bdbdbd'; pcx.beginPath(); pcx.moveTo(r*.82,-r*.80); pcx.quadraticCurveTo(r*1.34,-r*.72,r*1.42,-r*.62); pcx.quadraticCurveTo(r*1.34,-r*.52,r*.82,-r*.50); pcx.closePath(); pcx.fill();
+  } else {
+    pcx.fillStyle='#fbc02d'; pcx.beginPath(); pcx.ellipse(-r*.05,r*.12,r*.80,r*.25,-0.28,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fdd835'; pcx.beginPath(); pcx.ellipse(0,0,r*1.0,r*.92,0,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fff9c4'; pcx.beginPath(); pcx.ellipse(r*.08,r*.20,r*.55,r*.50,.1,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fdd835'; pcx.beginPath(); pcx.arc(r*.63,-r*.55,r*.42,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fbc02d'; pcx.beginPath(); pcx.arc(r*.55,-r*.95,r*.12,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fbc02d'; pcx.beginPath(); pcx.arc(r*.70,-r*.97,r*.10,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#111';    pcx.beginPath(); pcx.arc(r*.84,-r*.61,r*.11,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fff';    pcx.beginPath(); pcx.arc(r*.88,-r*.64,r*.04,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#ff8f00'; pcx.beginPath(); pcx.moveTo(r*.82,-r*.73); pcx.lineTo(r*1.24,-r*.62); pcx.lineTo(r*.82,-r*.53); pcx.closePath(); pcx.fill();
+  }
+  pcx.restore();
 }
 
 function startPress() {
@@ -654,73 +709,116 @@ function drawPelican(r, pressing) {
 
 function drawPenguin(r, pressing) {
   const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.45 : 0;
-  // tail
-  ctx.fillStyle = '#263238';
-  ctx.beginPath(); ctx.moveTo(-r*0.9, r*0.1); ctx.lineTo(-r*1.5, -r*0.05);
-  ctx.lineTo(-r*1.3, r*0.25); ctx.closePath(); ctx.fill();
-  // flippers
-  ctx.save(); ctx.rotate(pressing ? -0.45 : wingOff * 0.06);
-  ctx.fillStyle = '#263238';
-  ctx.beginPath(); ctx.ellipse(-r*0.1, r*0.05+wingOff, r*1.0, r*0.26, -0.2, 0, Math.PI*2); ctx.fill();
-  ctx.restore();
-  // body black
-  ctx.fillStyle = '#263238';
-  ctx.beginPath(); ctx.ellipse(0, 0, r*1.1, r*0.95, 0, 0, Math.PI*2); ctx.fill();
-  // belly white
-  ctx.fillStyle = '#f5f5f5';
-  ctx.beginPath(); ctx.ellipse(r*0.05, r*0.08, r*0.65, r*0.72, 0.05, 0, Math.PI*2); ctx.fill();
-  // head black
-  ctx.fillStyle = '#263238';
-  ctx.beginPath(); ctx.arc(r*0.68, -r*0.6, r*0.43, 0, Math.PI*2); ctx.fill();
+
+  // tail fan
+  ctx.fillStyle = '#1c2b30';
+  ctx.beginPath();
+  ctx.moveTo(-r*0.6, r*0.2); ctx.lineTo(-r*1.55, r*0.0); ctx.lineTo(-r*1.35, r*0.35);
+  ctx.lineTo(-r*1.6, r*0.52); ctx.lineTo(-r*0.85, r*0.48); ctx.closePath(); ctx.fill();
+
+  // flipper (elongated wing shape)
+  ctx.save(); ctx.rotate(pressing ? -0.4 : wingOff * 0.05);
+  ctx.fillStyle = '#1c2b30';
+  ctx.beginPath();
+  ctx.moveTo(-r*0.25, r*0.05 + wingOff);
+  ctx.bezierCurveTo(-r*0.5, -r*0.15 + wingOff, -r*1.1, r*0.0 + wingOff, -r*1.35, r*0.2 + wingOff);
+  ctx.bezierCurveTo(-r*1.45, r*0.38 + wingOff, -r*1.05, r*0.45 + wingOff, -r*0.55, r*0.32 + wingOff);
+  ctx.bezierCurveTo(-r*0.25, r*0.22 + wingOff, -r*0.1, r*0.18 + wingOff, -r*0.25, r*0.05 + wingOff);
+  ctx.fill(); ctx.restore();
+
+  // dark back body
+  ctx.fillStyle = '#1c2b30';
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.08, r*0.92, 0, 0, Math.PI*2); ctx.fill();
+
+  // prominent white belly bib (teardrop shape, clearly in front)
+  ctx.fillStyle = '#f0f0f0';
+  ctx.beginPath();
+  ctx.moveTo(r*0.45, -r*0.55);
+  ctx.bezierCurveTo(r*0.95, -r*0.38, r*0.95, r*0.32, r*0.55, r*0.78);
+  ctx.bezierCurveTo(r*0.28, r*0.90, -r*0.22, r*0.88, -r*0.42, r*0.70);
+  ctx.bezierCurveTo(-r*0.60, r*0.42, -r*0.28, -r*0.42, r*0.45, -r*0.55);
+  ctx.fill();
+
+  // dark head (clearly protruding above body)
+  ctx.fillStyle = '#1c2b30';
+  ctx.beginPath(); ctx.arc(r*0.65, -r*0.62, r*0.43, 0, Math.PI*2); ctx.fill();
+
   // eye
-  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.84, -r*0.68, r*0.14, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#111';    ctx.beginPath(); ctx.arc(r*0.87, -r*0.68, r*0.08, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.90, -r*0.71, r*0.03, 0, Math.PI*2); ctx.fill();
-  // beak
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.82, -r*0.70, r*0.15, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#111';    ctx.beginPath(); ctx.arc(r*0.85, -r*0.70, r*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.88, -r*0.73, r*0.035, 0, Math.PI*2); ctx.fill();
+
+  // hooked penguin beak
   ctx.fillStyle = '#f9a825';
-  ctx.beginPath(); ctx.moveTo(r*0.76, -r*0.82); ctx.lineTo(r*1.28, -r*0.68); ctx.lineTo(r*0.76, -r*0.52); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(r*0.70, -r*0.88); ctx.lineTo(r*1.28, -r*0.72);
+  ctx.quadraticCurveTo(r*1.25, -r*0.58, r*1.1, -r*0.56);
+  ctx.lineTo(r*0.70, -r*0.62); ctx.closePath(); ctx.fill();
   ctx.strokeStyle = '#e65100'; ctx.lineWidth = r*0.05;
-  ctx.beginPath(); ctx.moveTo(r*0.76, -r*0.67); ctx.lineTo(r*1.26, -r*0.68); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(r*0.70, -r*0.75); ctx.lineTo(r*1.26, -r*0.72); ctx.stroke();
 }
 
 function drawPigeon(r, pressing) {
   const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.5 : 0;
-  // tail
-  ctx.fillStyle = '#9e9e9e';
-  ctx.beginPath(); ctx.moveTo(-r*0.9, r*0.1); ctx.lineTo(-r*1.55, -r*0.15);
-  ctx.lineTo(-r*1.45, r*0.2); ctx.lineTo(-r*1.65, r*0.38); ctx.lineTo(-r*1.05, r*0.32); ctx.closePath(); ctx.fill();
-  // wings
-  ctx.save(); ctx.rotate(pressing ? -0.5 : wingOff * 0.07);
-  ctx.fillStyle = '#bdbdbd';
-  ctx.beginPath(); ctx.ellipse(-r*0.1, -r*0.03+wingOff, r*1.02, r*0.30, -0.22, 0, Math.PI*2); ctx.fill();
+
+  // spread tail feathers
   ctx.fillStyle = '#757575';
-  ctx.beginPath(); ctx.ellipse(-r*0.88, -r*0.06+wingOff, r*0.33, r*0.16, -0.22, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-r*0.55, r*0.1); ctx.lineTo(-r*1.65, -r*0.1); ctx.lineTo(-r*1.5, r*0.22);
+  ctx.lineTo(-r*1.72, r*0.42); ctx.lineTo(-r*1.5, r*0.52); ctx.lineTo(-r*1.2, r*0.40);
+  ctx.lineTo(-r*0.9, r*0.42); ctx.closePath(); ctx.fill();
+
+  // wing panel with visible feather sections
+  ctx.save(); ctx.rotate(pressing ? -0.5 : wingOff * 0.07);
+  ctx.fillStyle = '#90a4ae';
+  ctx.beginPath();
+  ctx.moveTo(r*0.1, -r*0.2 + wingOff);
+  ctx.bezierCurveTo(-r*0.2, -r*0.35 + wingOff, -r*0.9, -r*0.2 + wingOff, -r*1.2, r*0.1 + wingOff);
+  ctx.bezierCurveTo(-r*1.35, r*0.28 + wingOff, -r*1.1, r*0.42 + wingOff, -r*0.7, r*0.35 + wingOff);
+  ctx.bezierCurveTo(-r*0.3, r*0.28 + wingOff, r*0.0, r*0.15 + wingOff, r*0.1, -r*0.2 + wingOff);
+  ctx.fill();
+  // darker wing bar (primary feathers strip)
+  ctx.fillStyle = '#546e7a';
+  ctx.beginPath();
+  ctx.moveTo(-r*0.5, r*0.08 + wingOff);
+  ctx.bezierCurveTo(-r*0.7, r*0.02 + wingOff, -r*1.1, r*0.12 + wingOff, -r*1.2, r*0.22 + wingOff);
+  ctx.bezierCurveTo(-r*1.12, r*0.35 + wingOff, -r*0.8, r*0.34 + wingOff, -r*0.5, r*0.28 + wingOff);
+  ctx.bezierCurveTo(-r*0.3, r*0.22 + wingOff, -r*0.35, r*0.12 + wingOff, -r*0.5, r*0.08 + wingOff);
+  ctx.fill();
   ctx.restore();
-  // body
+
+  // puffed body
   ctx.fillStyle = '#9e9e9e';
-  ctx.beginPath(); ctx.ellipse(0, 0, r*1.12, r*0.88, 0, 0, Math.PI*2); ctx.fill();
-  // iridescent neck
-  ctx.fillStyle = '#80cbc4';
-  ctx.beginPath(); ctx.ellipse(r*0.32, -r*0.28, r*0.42, r*0.34, 0.25, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = 'rgba(186,104,200,0.45)';
-  ctx.beginPath(); ctx.ellipse(r*0.32, -r*0.28, r*0.42, r*0.34, 0.25, 0, Math.PI*2); ctx.fill();
-  // light belly
-  ctx.fillStyle = '#e0e0e0';
-  ctx.beginPath(); ctx.ellipse(r*0.05, r*0.22, r*0.55, r*0.45, 0.1, 0, Math.PI*2); ctx.fill();
-  // head
-  ctx.fillStyle = '#9e9e9e';
-  ctx.beginPath(); ctx.ellipse(r*0.72, -r*0.57, r*0.42, r*0.40, 0.1, 0, Math.PI*2); ctx.fill();
-  // eye orange
-  ctx.fillStyle = '#ff8f00'; ctx.beginPath(); ctx.arc(r*0.88, -r*0.67, r*0.17, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(r*0.90, -r*0.67, r*0.09, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.93, -r*0.70, r*0.035, 0, Math.PI*2); ctx.fill();
-  // beak
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.15, r*0.90, 0, 0, Math.PI*2); ctx.fill();
+
+  // iridescent neck collar (bright, clearly visible ring)
+  ctx.fillStyle = '#26c6da';
+  ctx.beginPath(); ctx.ellipse(r*0.42, -r*0.38, r*0.40, r*0.30, 0.25, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(170,0,255,0.38)';
+  ctx.beginPath(); ctx.ellipse(r*0.42, -r*0.38, r*0.40, r*0.30, 0.25, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,215,0,0.22)';
+  ctx.beginPath(); ctx.ellipse(r*0.38, -r*0.46, r*0.24, r*0.13, 0.25, 0, Math.PI*2); ctx.fill();
+
+  // light chest
+  ctx.fillStyle = '#e8e0d8';
+  ctx.beginPath(); ctx.ellipse(r*0.08, r*0.25, r*0.58, r*0.48, 0.08, 0, Math.PI*2); ctx.fill();
+
+  // head (smaller, blue-grey, clearly sits above collar)
+  ctx.fillStyle = '#78909c';
+  ctx.beginPath(); ctx.arc(r*0.72, -r*0.60, r*0.40, 0, Math.PI*2); ctx.fill();
+
+  // eye (orange ring)
+  ctx.fillStyle = '#ff8f00'; ctx.beginPath(); ctx.arc(r*0.88, -r*0.68, r*0.18, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.arc(r*0.90, -r*0.68, r*0.10, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';    ctx.beginPath(); ctx.arc(r*0.93, -r*0.71, r*0.04, 0, Math.PI*2); ctx.fill();
+
+  // beak with prominent pink cere at base
   ctx.fillStyle = '#bdbdbd';
-  ctx.beginPath(); ctx.moveTo(r*0.84, -r*0.80);
-  ctx.quadraticCurveTo(r*1.35, -r*0.72, r*1.44, -r*0.63);
-  ctx.quadraticCurveTo(r*1.35, -r*0.55, r*0.84, -r*0.52); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(r*0.84, -r*0.82);
+  ctx.quadraticCurveTo(r*1.36, -r*0.74, r*1.45, -r*0.64);
+  ctx.quadraticCurveTo(r*1.36, -r*0.56, r*0.84, -r*0.52); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#f48fb1';
-  ctx.beginPath(); ctx.ellipse(r*0.92, -r*0.66, r*0.11, r*0.07, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.92, -r*0.67, r*0.13, r*0.09, 0, 0, Math.PI*2); ctx.fill();
 }
 
 function drawChick(r, pressing) {
