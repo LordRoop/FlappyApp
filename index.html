@@ -370,6 +370,7 @@ function retryGame() {
   scoreEl.textContent = '0';
   pipes = [];
   pipeTimer = 0;
+  lastPipeTopH = null;
   resetBird();
   gameOverEl.style.display = 'none';
   scoreEl.style.display = 'block';
@@ -415,11 +416,22 @@ const PIPE_SPEED = 1.6 * (W / 375);
 let pipes = [];
 let pipeTimer = 0;
 const PIPE_INTERVAL = 90;
+const MAX_PIPE_DELTA = H * 0.18; // max vertical shift between consecutive pipes
+let lastPipeTopH = null;
 
 function addPipe() {
   const minTop = H * 0.15;
   const maxTop = H * 0.65;
-  const topH = minTop + Math.random() * (maxTop - minTop);
+  let lo, hi;
+  if (lastPipeTopH === null) {
+    lo = minTop;
+    hi = maxTop;
+  } else {
+    lo = Math.max(minTop, lastPipeTopH - MAX_PIPE_DELTA);
+    hi = Math.min(maxTop, lastPipeTopH + MAX_PIPE_DELTA);
+  }
+  const topH = lo + Math.random() * (hi - lo);
+  lastPipeTopH = topH;
   pipes.push({ x: W + PIPE_W, topH, passed: false });
 }
 
