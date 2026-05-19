@@ -462,7 +462,7 @@ function renderBirdPreview() {
   pcx.translate(cx, cy);
   const b = selectedBird;
   if (b === 'pelican') {
-    pcx.fillStyle='#e0e0e0'; pcx.beginPath(); pcx.ellipse(-r*.12,-r*.02,r*.98,r*.28,-0.25,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#e0e0e0'; pcx.beginPath(); pcx.ellipse(-r*.12,-r*.44,r*.98,r*.28,-0.25,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#f5f5f5'; pcx.beginPath(); pcx.ellipse(0,0,r*1.1,r*.85,0,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#fffde7'; pcx.beginPath(); pcx.ellipse(r*.05,r*.22,r*.6,r*.48,.1,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#f5f5f5'; pcx.beginPath(); pcx.ellipse(r*.72,-r*.52,r*.42,r*.40,.15,0,Math.PI*2); pcx.fill();
@@ -471,7 +471,7 @@ function renderBirdPreview() {
     pcx.fillStyle='#f9a825'; pcx.beginPath(); pcx.moveTo(r*.88,-r*.75); pcx.quadraticCurveTo(r*1.75,-r*.68,r*2.0,-r*.52); pcx.quadraticCurveTo(r*1.75,-r*.46,r*.88,-r*.48); pcx.closePath(); pcx.fill();
     pcx.fillStyle='#ff8f00'; pcx.beginPath(); pcx.moveTo(r*.88,-r*.48); pcx.quadraticCurveTo(r*1.5,-r*.32,r*1.9,-r*.40); pcx.quadraticCurveTo(r*1.7,-r*.16,r*1.05,-r*.04); pcx.quadraticCurveTo(r*.92,-r*.18,r*.88,-r*.48); pcx.closePath(); pcx.fill();
   } else if (b === 'penguin') {
-    pcx.fillStyle='#1c2b30'; pcx.beginPath(); pcx.ellipse(-r*.1,r*.05,r*.95,r*.25,-0.2,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#1c2b30'; pcx.beginPath(); pcx.ellipse(-r*.1,-r*.44,r*.95,r*.25,-0.2,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#1c2b30'; pcx.beginPath(); pcx.ellipse(0,0,r*1.05,r*.92,0,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#f0f0f0';
     pcx.beginPath(); pcx.moveTo(r*.45,-r*.55); pcx.bezierCurveTo(r*.95,-r*.38,r*.95,r*.32,r*.55,r*.78); pcx.bezierCurveTo(r*.28,r*.90,-r*.22,r*.88,-r*.42,r*.70); pcx.bezierCurveTo(-r*.60,r*.42,-r*.28,-r*.42,r*.45,-r*.55); pcx.fill();
@@ -480,7 +480,7 @@ function renderBirdPreview() {
     pcx.fillStyle='#111';    pcx.beginPath(); pcx.arc(r*.85,-r*.70,r*.07,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#f9a825'; pcx.beginPath(); pcx.moveTo(r*.70,-r*.88); pcx.lineTo(r*1.28,-r*.72); pcx.quadraticCurveTo(r*1.25,-r*.58,r*1.1,-r*.56); pcx.lineTo(r*.70,-r*.62); pcx.closePath(); pcx.fill();
   } else if (b === 'pigeon') {
-    pcx.fillStyle='#90a4ae'; pcx.beginPath(); pcx.ellipse(-r*.1,-r*.02,r*.98,r*.28,-0.22,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#90a4ae'; pcx.beginPath(); pcx.ellipse(-r*.1,-r*.50,r*.98,r*.28,-0.22,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#9e9e9e'; pcx.beginPath(); pcx.ellipse(0,0,r*1.12,r*.85,0,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#26c6da'; pcx.beginPath(); pcx.ellipse(r*.40,-r*.36,r*.38,r*.28,.25,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='rgba(170,0,255,0.38)'; pcx.beginPath(); pcx.ellipse(r*.40,-r*.36,r*.38,r*.28,.25,0,Math.PI*2); pcx.fill();
@@ -490,7 +490,7 @@ function renderBirdPreview() {
     pcx.fillStyle='#111';    pcx.beginPath(); pcx.arc(r*.88,-r*.66,r*.08,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#bdbdbd'; pcx.beginPath(); pcx.moveTo(r*.82,-r*.80); pcx.quadraticCurveTo(r*1.34,-r*.72,r*1.42,-r*.62); pcx.quadraticCurveTo(r*1.34,-r*.52,r*.82,-r*.50); pcx.closePath(); pcx.fill();
   } else {
-    pcx.fillStyle='#fbc02d'; pcx.beginPath(); pcx.ellipse(-r*.05,r*.12,r*.80,r*.25,-0.28,0,Math.PI*2); pcx.fill();
+    pcx.fillStyle='#fbc02d'; pcx.beginPath(); pcx.ellipse(-r*.05,-r*.44,r*.80,r*.25,-0.28,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#fdd835'; pcx.beginPath(); pcx.ellipse(0,0,r*1.0,r*.92,0,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#fff9c4'; pcx.beginPath(); pcx.ellipse(r*.08,r*.20,r*.55,r*.50,.1,0,Math.PI*2); pcx.fill();
     pcx.fillStyle='#fdd835'; pcx.beginPath(); pcx.arc(r*.63,-r*.55,r*.42,0,Math.PI*2); pcx.fill();
@@ -670,17 +670,17 @@ function drawBird() {
 }
 
 function drawPelican(r, pressing) {
-  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.55 : 0;
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.28 : 0;
   ctx.fillStyle = '#b0bec5';
   ctx.beginPath();
   ctx.moveTo(-r*1.0, r*0.1); ctx.lineTo(-r*1.6, -r*0.3); ctx.lineTo(-r*1.5, r*0.15);
   ctx.lineTo(-r*1.7, r*0.35); ctx.lineTo(-r*1.1, r*0.3); ctx.closePath(); ctx.fill();
-  const wAngle = pressing ? -0.55 : wingOff * 0.08;
+  const wAngle = pressing ? -0.55 : wingOff * 0.16;
   ctx.save(); ctx.rotate(wAngle);
   ctx.fillStyle = '#e0e0e0';
-  ctx.beginPath(); ctx.ellipse(-r*0.15, -r*0.05+wingOff, r*1.05, r*0.32, -0.25, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-r*0.15, -r*0.46+wingOff, r*1.05, r*0.32, -0.25, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#78909c';
-  ctx.beginPath(); ctx.ellipse(-r*0.9, -r*0.08+wingOff, r*0.35, r*0.18, -0.25, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-r*0.9, -r*0.50+wingOff, r*0.35, r*0.18, -0.25, 0, Math.PI*2); ctx.fill();
   ctx.restore();
   ctx.fillStyle = '#f5f5f5';
   ctx.beginPath(); ctx.ellipse(0, 0, r*1.15, r*0.88, 0, 0, Math.PI*2); ctx.fill();
@@ -708,7 +708,7 @@ function drawPelican(r, pressing) {
 }
 
 function drawPenguin(r, pressing) {
-  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.45 : 0;
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.22 : 0;
 
   // tail fan
   ctx.fillStyle = '#1c2b30';
@@ -716,14 +716,14 @@ function drawPenguin(r, pressing) {
   ctx.moveTo(-r*0.6, r*0.2); ctx.lineTo(-r*1.55, r*0.0); ctx.lineTo(-r*1.35, r*0.35);
   ctx.lineTo(-r*1.6, r*0.52); ctx.lineTo(-r*0.85, r*0.48); ctx.closePath(); ctx.fill();
 
-  // flipper (elongated wing shape)
+  // flipper (elongated wing shape, positioned on upper back)
   ctx.save(); ctx.rotate(pressing ? -0.4 : wingOff * 0.05);
   ctx.fillStyle = '#1c2b30';
   ctx.beginPath();
-  ctx.moveTo(-r*0.25, r*0.05 + wingOff);
-  ctx.bezierCurveTo(-r*0.5, -r*0.15 + wingOff, -r*1.1, r*0.0 + wingOff, -r*1.35, r*0.2 + wingOff);
-  ctx.bezierCurveTo(-r*1.45, r*0.38 + wingOff, -r*1.05, r*0.45 + wingOff, -r*0.55, r*0.32 + wingOff);
-  ctx.bezierCurveTo(-r*0.25, r*0.22 + wingOff, -r*0.1, r*0.18 + wingOff, -r*0.25, r*0.05 + wingOff);
+  ctx.moveTo(-r*0.25, -r*0.47 + wingOff);
+  ctx.bezierCurveTo(-r*0.5, -r*0.67 + wingOff, -r*1.1, -r*0.52 + wingOff, -r*1.35, -r*0.32 + wingOff);
+  ctx.bezierCurveTo(-r*1.45, -r*0.14 + wingOff, -r*1.05, -r*0.07 + wingOff, -r*0.55, -r*0.20 + wingOff);
+  ctx.bezierCurveTo(-r*0.25, -r*0.30 + wingOff, -r*0.1, -r*0.34 + wingOff, -r*0.25, -r*0.47 + wingOff);
   ctx.fill(); ctx.restore();
 
   // dark back body
@@ -759,7 +759,7 @@ function drawPenguin(r, pressing) {
 }
 
 function drawPigeon(r, pressing) {
-  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.5 : 0;
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.28 : 0;
 
   // spread tail feathers
   ctx.fillStyle = '#757575';
@@ -768,22 +768,22 @@ function drawPigeon(r, pressing) {
   ctx.lineTo(-r*1.72, r*0.42); ctx.lineTo(-r*1.5, r*0.52); ctx.lineTo(-r*1.2, r*0.40);
   ctx.lineTo(-r*0.9, r*0.42); ctx.closePath(); ctx.fill();
 
-  // wing panel with visible feather sections
+  // wing panel with visible feather sections (positioned on upper back)
   ctx.save(); ctx.rotate(pressing ? -0.5 : wingOff * 0.07);
   ctx.fillStyle = '#90a4ae';
   ctx.beginPath();
-  ctx.moveTo(r*0.1, -r*0.2 + wingOff);
-  ctx.bezierCurveTo(-r*0.2, -r*0.35 + wingOff, -r*0.9, -r*0.2 + wingOff, -r*1.2, r*0.1 + wingOff);
-  ctx.bezierCurveTo(-r*1.35, r*0.28 + wingOff, -r*1.1, r*0.42 + wingOff, -r*0.7, r*0.35 + wingOff);
-  ctx.bezierCurveTo(-r*0.3, r*0.28 + wingOff, r*0.0, r*0.15 + wingOff, r*0.1, -r*0.2 + wingOff);
+  ctx.moveTo(r*0.1, -r*0.68 + wingOff);
+  ctx.bezierCurveTo(-r*0.2, -r*0.83 + wingOff, -r*0.9, -r*0.68 + wingOff, -r*1.2, -r*0.38 + wingOff);
+  ctx.bezierCurveTo(-r*1.35, -r*0.20 + wingOff, -r*1.1, -r*0.06 + wingOff, -r*0.7, -r*0.13 + wingOff);
+  ctx.bezierCurveTo(-r*0.3, -r*0.20 + wingOff, r*0.0, -r*0.33 + wingOff, r*0.1, -r*0.68 + wingOff);
   ctx.fill();
   // darker wing bar (primary feathers strip)
   ctx.fillStyle = '#546e7a';
   ctx.beginPath();
-  ctx.moveTo(-r*0.5, r*0.08 + wingOff);
-  ctx.bezierCurveTo(-r*0.7, r*0.02 + wingOff, -r*1.1, r*0.12 + wingOff, -r*1.2, r*0.22 + wingOff);
-  ctx.bezierCurveTo(-r*1.12, r*0.35 + wingOff, -r*0.8, r*0.34 + wingOff, -r*0.5, r*0.28 + wingOff);
-  ctx.bezierCurveTo(-r*0.3, r*0.22 + wingOff, -r*0.35, r*0.12 + wingOff, -r*0.5, r*0.08 + wingOff);
+  ctx.moveTo(-r*0.5, -r*0.40 + wingOff);
+  ctx.bezierCurveTo(-r*0.7, -r*0.46 + wingOff, -r*1.1, -r*0.36 + wingOff, -r*1.2, -r*0.26 + wingOff);
+  ctx.bezierCurveTo(-r*1.12, -r*0.13 + wingOff, -r*0.8, -r*0.14 + wingOff, -r*0.5, -r*0.20 + wingOff);
+  ctx.bezierCurveTo(-r*0.3, -r*0.26 + wingOff, -r*0.35, -r*0.36 + wingOff, -r*0.5, -r*0.40 + wingOff);
   ctx.fill();
   ctx.restore();
 
@@ -822,15 +822,15 @@ function drawPigeon(r, pressing) {
 }
 
 function drawChick(r, pressing) {
-  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.38 : 0;
+  const wingOff = state === 'play' ? Math.sin(bird.frameTimer * 0.28) * r * 0.28 : 0;
   // tail fluff
   ctx.fillStyle = '#fbc02d';
   ctx.beginPath(); ctx.arc(-r*1.05, r*0.05, r*0.32, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(-r*0.95, -r*0.18, r*0.25, 0, Math.PI*2); ctx.fill();
-  // wing stubs
+  // wing stubs (positioned on upper back)
   ctx.save(); ctx.rotate(pressing ? -0.4 : wingOff * 0.06);
   ctx.fillStyle = '#fbc02d';
-  ctx.beginPath(); ctx.ellipse(-r*0.05, r*0.12+wingOff, r*0.82, r*0.26, -0.28, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-r*0.05, -r*0.44+wingOff, r*0.82, r*0.26, -0.28, 0, Math.PI*2); ctx.fill();
   ctx.restore();
   // body
   ctx.fillStyle = '#fdd835';
