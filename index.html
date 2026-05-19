@@ -269,7 +269,6 @@
     </div>
     <div id="gameOver" class="card">
       <div class="title" style="font-size:clamp(16px,4.5vw,26px)">GAME OVER</div>
-      <div id="medal" class="medal"></div>
       <div class="score-box">
         <div class="score-row"><span>SCORE</span><span id="finalScore">0</span></div>
         <div class="score-row"><span>🟢 BEST</span><span id="bestEasyScore">0</span></div>
@@ -281,6 +280,15 @@
         <button class="diff-btn selected-hard" id="goHard" onclick="setDiff('hard')">🔴<br>HARD</button>
       </div>
       <button class="start-btn" style="margin-top:4px" onclick="retryGame()">▶ RETRY</button>
+    </div>
+    <div id="highScoreScreen" class="card" style="display:none">
+      <div class="title" style="font-size:clamp(13px,3.8vw,20px);color:#ffd700">NEW BEST!</div>
+      <div style="font-size:clamp(48px,14vw,72px);line-height:1;margin:4px 0">🏆</div>
+      <div class="score-box">
+        <div class="score-row"><span>SCORE</span><span id="hsScore">0</span></div>
+        <div class="score-row" style="margin-top:4px"><span>MODE</span><span id="hsDiffBadge" style="color:#a5d6a7">EASY</span></div>
+      </div>
+      <button class="start-btn" style="margin-top:8px" onclick="retryGame()">▶ PLAY AGAIN</button>
     </div>
   </div>
 </div>
@@ -307,7 +315,6 @@ const gameOverEl = document.getElementById('gameOver');
 const finalScoreEl = document.getElementById('finalScore');
 const bestEasyScoreEl = document.getElementById('bestEasyScore');
 const bestHardScoreEl = document.getElementById('bestHardScore');
-const medalEl = document.getElementById('medal');
 
 // ---- Sizing ----
 let W, H, scale;
@@ -376,6 +383,7 @@ function retryGame() {
   lastPipeTopH = null;
   resetBird();
   gameOverEl.style.display = 'none';
+  document.getElementById('highScoreScreen').style.display = 'none';
   scoreEl.style.display = 'block';
   state = 'play';
 }
@@ -700,22 +708,30 @@ function update(delta = 1) {
   // collision
   if (checkCollision()) {
     state = 'dead';
+    let isNewBest = false;
     if (difficulty === 'easy') {
-      if (score > bestEasy) { bestEasy = score; localStorage.setItem('flappy_best_easy', bestEasy); }
+      if (score > bestEasy) { bestEasy = score; localStorage.setItem('flappy_best_easy', bestEasy); isNewBest = true; }
     } else {
-      if (score > bestHard) { bestHard = score; localStorage.setItem('flappy_best_hard', bestHard); }
+      if (score > bestHard) { bestHard = score; localStorage.setItem('flappy_best_hard', bestHard); isNewBest = true; }
     }
-    finalScoreEl.textContent = score;
-    bestEasyScoreEl.textContent = bestEasy;
-    bestHardScoreEl.textContent = bestHard;
-    medalEl.textContent = score >= 30 ? '🥇' : score >= 20 ? '🥈' : score >= 10 ? '🥉' : score >= 5 ? '🏅' : '';
-    const badge = document.getElementById('diffBadge');
-    badge.textContent = difficulty.toUpperCase();
-    badge.style.color = difficulty === 'easy' ? '#a5d6a7' : '#ef9a9a';
-    document.getElementById('goEasy').className = 'diff-btn' + (difficulty === 'easy' ? ' selected-easy' : '');
-    document.getElementById('goHard').className = 'diff-btn' + (difficulty === 'hard' ? ' selected-hard' : '');
     scoreEl.style.display = 'none';
-    gameOverEl.style.display = 'flex';
+    if (isNewBest) {
+      document.getElementById('hsScore').textContent = score;
+      const hsBadge = document.getElementById('hsDiffBadge');
+      hsBadge.textContent = difficulty.toUpperCase();
+      hsBadge.style.color = difficulty === 'easy' ? '#a5d6a7' : '#ef9a9a';
+      document.getElementById('highScoreScreen').style.display = 'flex';
+    } else {
+      finalScoreEl.textContent = score;
+      bestEasyScoreEl.textContent = bestEasy;
+      bestHardScoreEl.textContent = bestHard;
+      const badge = document.getElementById('diffBadge');
+      badge.textContent = difficulty.toUpperCase();
+      badge.style.color = difficulty === 'easy' ? '#a5d6a7' : '#ef9a9a';
+      document.getElementById('goEasy').className = 'diff-btn' + (difficulty === 'easy' ? ' selected-easy' : '');
+      document.getElementById('goHard').className = 'diff-btn' + (difficulty === 'hard' ? ' selected-hard' : '');
+      gameOverEl.style.display = 'flex';
+    }
   }
 }
 
