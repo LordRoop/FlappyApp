@@ -275,11 +275,7 @@
         <div class="score-row"><span>🔴 BEST</span><span id="bestHardScore">0</span></div>
         <div class="score-row" style="margin-top:4px"><span>MODE</span><span id="diffBadge" style="color:#a5d6a7">EASY</span></div>
       </div>
-      <div class="diff-btns" style="margin-top:4px">
-        <button class="diff-btn" id="goEasy" onclick="setDiff('easy')">🟢<br>EASY</button>
-        <button class="diff-btn selected-hard" id="goHard" onclick="setDiff('hard')">🔴<br>HARD</button>
-      </div>
-      <button class="start-btn" style="margin-top:4px" onclick="retryGame()">▶ RETRY</button>
+      <button class="start-btn" style="margin-top:4px" onclick="goToMenu()">☰ MAIN MENU</button>
     </div>
     <div id="highScoreScreen" class="card" style="display:none">
       <div class="title" style="font-size:clamp(13px,3.8vw,20px);color:#ffd700">NEW BEST!</div>
@@ -288,7 +284,7 @@
         <div class="score-row"><span>SCORE</span><span id="hsScore">0</span></div>
         <div class="score-row" style="margin-top:4px"><span>MODE</span><span id="hsDiffBadge" style="color:#a5d6a7">EASY</span></div>
       </div>
-      <button class="start-btn" style="margin-top:8px" onclick="retryGame()">▶ PLAY AGAIN</button>
+      <button class="start-btn" style="margin-top:8px" onclick="goToMenu()">☰ MAIN MENU</button>
     </div>
   </div>
 </div>
@@ -375,7 +371,7 @@ function beginGame() {
   bird.angle = -0.4;
 }
 
-function retryGame() {
+function goToMenu() {
   score = 0;
   scoreEl.textContent = '0';
   pipes = [];
@@ -384,8 +380,9 @@ function retryGame() {
   resetBird();
   gameOverEl.style.display = 'none';
   document.getElementById('highScoreScreen').style.display = 'none';
-  scoreEl.style.display = 'block';
-  state = 'play';
+  scoreEl.style.display = 'none';
+  startScreen.style.display = 'flex';
+  state = 'idle';
 }
 
 function startPress() {
@@ -422,8 +419,6 @@ function setDiff(d) {
   GAP = d === 'easy' ? GAP_EASY : GAP_HARD;
   document.getElementById('btnEasy').className = 'diff-btn' + (d === 'easy' ? ' selected-easy' : '');
   document.getElementById('btnHard').className = 'diff-btn' + (d === 'hard' ? ' selected-hard' : '');
-  document.getElementById('goEasy').className = 'diff-btn' + (d === 'easy' ? ' selected-easy' : '');
-  document.getElementById('goHard').className = 'diff-btn' + (d === 'hard' ? ' selected-hard' : '');
 }
 const PIPE_SPEED = 1.6 * (W / 375);
 let pipes = [];
@@ -728,8 +723,6 @@ function update(delta = 1) {
       const badge = document.getElementById('diffBadge');
       badge.textContent = difficulty.toUpperCase();
       badge.style.color = difficulty === 'easy' ? '#a5d6a7' : '#ef9a9a';
-      document.getElementById('goEasy').className = 'diff-btn' + (difficulty === 'easy' ? ' selected-easy' : '');
-      document.getElementById('goHard').className = 'diff-btn' + (difficulty === 'hard' ? ' selected-hard' : '');
       gameOverEl.style.display = 'flex';
     }
   }
